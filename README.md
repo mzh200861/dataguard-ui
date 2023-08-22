@@ -2,9 +2,13 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## Steps to run the app
 
 In the project directory, you can run:
+
+### `npm install`
+
+Installs the app dependencies
 
 ### `npm run json-server`
 
