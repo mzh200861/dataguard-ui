@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:3001",
+    baseURL: "https://sedate-polarized-periwinkle.glitch.me",
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",

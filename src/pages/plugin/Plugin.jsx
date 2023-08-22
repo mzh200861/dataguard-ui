@@ -2,18 +2,27 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import PluginContainer from "../../containers/PluginContainer";
+import CircularProgress from "@mui/material/CircularProgress";
 import { fetchData, updateData } from "./PluginService";
 
 const Plugin = () => {
     const [data, setData] = useState([]);
+    const [loading, setLoading] = React.useState(false);
 
     useEffect(() => {
         getData();
     }, []);
 
     const getData = async () => {
-        const data = await fetchData("/data");
-        setData(data);
+        setLoading(true);
+        try {
+            const data = await fetchData("/data");
+            setData(data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const activatePlugin = async (plugin, tab) => {
@@ -104,32 +113,40 @@ const Plugin = () => {
         setData(response);
     };
     return (
-        <div className="flex">
-            <Sidebar
-                tabs={data?.tabs || []}
-                handlePowerSwitch={handlePowerSwitch}
-                tabData={data?.tabdata}
-            />
-            <Routes>
-                {data?.tabs?.map((tab) => (
-                    <Route
-                        path={`/home/${data?.tabdata[tab]?.title}`}
-                        element={
-                            <PluginContainer
-                                tabData={data?.tabdata[tab]}
-                                allPlugins={data?.plugins}
-                                deactivatePlugin={(pluginName) =>
-                                    deactivatePlugin(pluginName, tab)
-                                }
-                                activatePlugin={(pluginName) =>
-                                    activatePlugin(pluginName, tab)
+        <>
+            {!loading ? (
+                <div className="flex">
+                    <Sidebar
+                        tabs={data?.tabs || []}
+                        handlePowerSwitch={handlePowerSwitch}
+                        tabData={data?.tabdata}
+                    />
+                    <Routes>
+                        {data?.tabs?.map((tab) => (
+                            <Route
+                                path={`/home/${data?.tabdata[tab]?.title}`}
+                                element={
+                                    <PluginContainer
+                                        tabData={data?.tabdata[tab]}
+                                        allPlugins={data?.plugins}
+                                        deactivatePlugin={(pluginName) =>
+                                            deactivatePlugin(pluginName, tab)
+                                        }
+                                        activatePlugin={(pluginName) =>
+                                            activatePlugin(pluginName, tab)
+                                        }
+                                    />
                                 }
                             />
-                        }
-                    />
-                ))}
-            </Routes>
-        </div>
+                        ))}
+                    </Routes>
+                </div>
+            ) : (
+                <CircularProgress
+                    sx={{ position: "absolute", left: "50%", top: "50%" }}
+                />
+            )}
+        </>
     );
 };
 

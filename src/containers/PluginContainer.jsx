@@ -35,8 +35,6 @@ const PluginContainer = ({
                 description: allPlugins[item].description,
                 icon: "icon",
                 active: true,
-                // disabled: false,
-                // inactive: false,
             };
         }
         for (let item of tabdata.inactive) {
@@ -45,8 +43,6 @@ const PluginContainer = ({
                 title: item,
                 description: allPlugins[item].description,
                 icon: "icon",
-                // active: false,
-                // disabled: false,
                 inactive: true,
             };
         }
@@ -56,9 +52,7 @@ const PluginContainer = ({
                 title: item,
                 description: allPlugins[item].description,
                 icon: "icon",
-                //active: false,
                 disabled: true,
-                //inactive: false,
             };
         }
         setPlugins(plugins);
