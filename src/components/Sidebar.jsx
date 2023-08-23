@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import CustomSwitch from "./CustomSwitch";
 import List from "@mui/material/List";
@@ -9,7 +9,13 @@ import Icons from "./Icons";
 
 const Sidebar = ({ tabs, handlePowerSwitch, tabData }) => {
     const [selectedItem, setSelectedItem] = useState(null);
-    const [powerSwitch, setPowerSwitch] = useState(true);
+    const [powerSwitch, setPowerSwitch] = useState();
+
+    useEffect(() => {
+        if (tabs.length > 0 && tabData[tabs[0]]) {
+            setPowerSwitch(!tabData[tabs[0]]?.disabled.length > 0);
+        }
+    }, [tabs, tabData]);
 
     const handleItemClick = (item) => {
         setSelectedItem(item);
@@ -50,7 +56,6 @@ const Sidebar = ({ tabs, handlePowerSwitch, tabData }) => {
             <div className={powerSwitch ? "gradient-green" : "gradient-red"}>
                 <div>All plugins {powerSwitch ? "enabled" : "disabled"}</div>
                 <CustomSwitch
-                    defaultChecked
                     onChange={(e) => handlePower(e)}
                     checked={powerSwitch}
                     sx={{ marginLeft: 5 }}

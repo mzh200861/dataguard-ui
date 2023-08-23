@@ -27,41 +27,55 @@ const Plugin = () => {
 
     const activatePlugin = async (plugin, tab) => {
         const { active, inactive } = data.tabdata[tab];
-        let payload = {
-            ...data,
-            tabdata: {
-                ...data.tabdata,
-                [tab]: {
-                    ...data.tabdata[tab],
-                    inactive: inactive.filter((item) => item !== plugin),
-                    active: [...active, plugin],
+        try {
+            let payload = {
+                ...data,
+                tabdata: {
+                    ...data.tabdata,
+                    [tab]: {
+                        ...data.tabdata[tab],
+                        inactive: inactive.filter((item) => item !== plugin),
+                        active: [...active, plugin],
+                    },
                 },
-            },
-            plugins: {
-                ...data.plugins,
-            },
-        };
-        const response = await updateData("/data", payload);
-        setData(response);
+                plugins: {
+                    ...data.plugins,
+                },
+            };
+            setLoading(true);
+            const response = await updateData("/data", payload);
+            setData(response);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
     };
     const deactivatePlugin = async (plugin, tab) => {
-        const { active, inactive } = data.tabdata[tab];
-        const payload = {
-            ...data,
-            tabdata: {
-                ...data.tabdata,
-                [tab]: {
-                    ...data.tabdata[tab],
-                    active: active.filter((item) => item !== plugin),
-                    inactive: [...inactive, plugin],
+        try {
+            const { active, inactive } = data.tabdata[tab];
+            const payload = {
+                ...data,
+                tabdata: {
+                    ...data.tabdata,
+                    [tab]: {
+                        ...data.tabdata[tab],
+                        active: active.filter((item) => item !== plugin),
+                        inactive: [...inactive, plugin],
+                    },
                 },
-            },
-            plugins: {
-                ...data.plugins,
-            },
-        };
-        const response = await updateData("/data", payload);
-        setData(response);
+                plugins: {
+                    ...data.plugins,
+                },
+            };
+            setLoading(true);
+            const response = await updateData("/data", payload);
+            setData(response);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handlePowerSwitch = (event) => {
@@ -74,78 +88,91 @@ const Plugin = () => {
 
     const disableAllPlugin = async () => {
         let tabdata = JSON.parse(JSON.stringify(data.tabdata));
-        Object.keys(tabdata).forEach((tab) => {
-            const { active, inactive, disabled } = data.tabdata[tab];
-            tabdata[tab] = {
-                ...data.tabdata[tab],
-                disabled: [...inactive, ...active, ...disabled],
+        try {
+            Object.keys(tabdata).forEach((tab) => {
+                const { active, inactive, disabled } = data.tabdata[tab];
+                tabdata[tab] = {
+                    ...data.tabdata[tab],
+                    disabled: [...inactive, ...active, ...disabled],
+                };
+            });
+            let payload = {
+                ...data,
+                tabdata: tabdata,
+                plugins: {
+                    ...data.plugins,
+                },
             };
-        });
-        let payload = {
-            ...data,
-            tabdata: tabdata,
-            plugins: {
-                ...data.plugins,
-            },
-        };
-        const response = await updateData("/data", payload);
-        setData(response);
+            setLoading(true);
+            const response = await updateData("/data", payload);
+            setData(response);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const enableAllPlugin = async () => {
         let tabdata = JSON.parse(JSON.stringify(data.tabdata));
-        Object.keys(tabdata).forEach((tab) => {
-            const { active } = data.tabdata[tab];
-            tabdata[tab] = {
-                ...data.tabdata[tab],
-                active: [...active],
-                disabled: [],
+        try {
+            Object.keys(tabdata).forEach((tab) => {
+                const { active } = data.tabdata[tab];
+                tabdata[tab] = {
+                    ...data.tabdata[tab],
+                    active: [...active],
+                    disabled: [],
+                };
+            });
+            let payload = {
+                ...data,
+                tabdata: tabdata,
+                plugins: {
+                    ...data.plugins,
+                },
             };
-        });
-        let payload = {
-            ...data,
-            tabdata: tabdata,
-            plugins: {
-                ...data.plugins,
-            },
-        };
-        const response = await updateData("/data", payload);
-        setData(response);
+            setLoading(true);
+            const response = await updateData("/data", payload);
+            setData(response);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
     };
     return (
         <>
-            {!loading ? (
-                <div className="flex">
-                    <Sidebar
-                        tabs={data?.tabs || []}
-                        handlePowerSwitch={handlePowerSwitch}
-                        tabData={data?.tabdata}
-                    />
-                    <Routes>
-                        {data?.tabs?.map((tab) => (
-                            <Route
-                                path={`/home/${data?.tabdata[tab]?.title}`}
-                                element={
-                                    <PluginContainer
-                                        tabData={data?.tabdata[tab]}
-                                        allPlugins={data?.plugins}
-                                        deactivatePlugin={(pluginName) =>
-                                            deactivatePlugin(pluginName, tab)
-                                        }
-                                        activatePlugin={(pluginName) =>
-                                            activatePlugin(pluginName, tab)
-                                        }
-                                    />
-                                }
-                            />
-                        ))}
-                    </Routes>
-                </div>
-            ) : (
-                <CircularProgress
-                    sx={{ position: "absolute", left: "50%", top: "50%" }}
+            <div className="flex">
+                <Sidebar
+                    tabs={data?.tabs || []}
+                    handlePowerSwitch={handlePowerSwitch}
+                    tabData={data?.tabdata}
                 />
-            )}
+                {loading && (
+                    <CircularProgress
+                        sx={{ position: "absolute", left: "50%", top: "50%" }}
+                    />
+                )}
+                <Routes>
+                    {data?.tabs?.map((tab) => (
+                        <Route
+                            path={`/home/${data?.tabdata[tab]?.title}`}
+                            element={
+                                <PluginContainer
+                                    tabData={data?.tabdata[tab]}
+                                    allPlugins={data?.plugins}
+                                    deactivatePlugin={(pluginName) =>
+                                        deactivatePlugin(pluginName, tab)
+                                    }
+                                    activatePlugin={(pluginName) =>
+                                        activatePlugin(pluginName, tab)
+                                    }
+                                />
+                            }
+                        />
+                    ))}
+                </Routes>
+            </div>
         </>
     );
 };
